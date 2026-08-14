@@ -150,8 +150,8 @@ Configure environment variables in Railway dashboard.
 ### Docker
 
 ```bash
-docker build -t crav-mcp-vercel .
-docker run -p 3002:3002 --env-file .env crav-mcp-vercel
+docker build -t javari-mcp-vercel .
+docker run -p 3002:3002 --env-file .env javari-mcp-vercel
 ```
 
 ## Monitoring

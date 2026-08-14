@@ -1,5 +1,5 @@
 {
-  "name": "crav-mcp-vercel",
+  "name": "javari-mcp-vercel",
   "version": "1.0.0",
   "description": "Vercel MCP Server for Javari AI Autonomous Deployments",
   "main": "dist/index.js",
