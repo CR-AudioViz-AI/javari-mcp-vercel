@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit';
 import winston from 'winston';
 import dotenv from 'dotenv';
 import axios, { AxiosInstance } from 'axios';
+import { safeId, safeDomain } from './safe-path.js';
 
 dotenv.config();
 
@@ -191,7 +192,7 @@ app.get('/api/deploy/:id/status', async (req: Request, res: Response) => {
     const { id } = req.params;
     const client = getVercelClient();
     
-    const response = await client.get(`/v13/deployments/${id}`);
+    const response = await client.get(`/v13/deployments/${safeId(id)}`);
     const deployment = response.data;
     
     res.json({
@@ -230,7 +231,7 @@ app.get('/api/deploy/:id/logs', async (req: Request, res: Response) => {
     const { id } = req.params;
     const client = getVercelClient();
     
-    const response = await client.get(`/v2/deployments/${id}/events`);
+    const response = await client.get(`/v2/deployments/${safeId(id)}/events`);
     
     const logs = response.data.map((event: any) => ({
       timestamp: event.created,
@@ -262,11 +263,11 @@ app.post('/api/deploy/:id/promote', async (req: Request, res: Response) => {
     logger.info('Promoting deployment to production', { deploymentId: id });
     
     // Get deployment details first
-    const deployment = await client.get(`/v13/deployments/${id}`);
+    const deployment = await client.get(`/v13/deployments/${safeId(id)}`);
     const projectId = deployment.data.projectId;
     
     // Promote to production by setting as the production deployment
-    await client.patch(`/v9/projects/${projectId}`, {
+    await client.patch(`/v9/projects/${safeId(projectId)}`, {
       framework: deployment.data.framework
     });
     
@@ -296,7 +297,7 @@ app.delete('/api/deploy/:id', async (req: Request, res: Response) => {
     
     logger.info('Cancelling deployment', { deploymentId: id });
     
-    await client.patch(`/v12/deployments/${id}/cancel`);
+    await client.patch(`/v12/deployments/${safeId(id)}/cancel`);
     
     logger.info('Deployment cancelled successfully', { deploymentId: id });
     
@@ -371,7 +372,7 @@ app.post('/api/env', async (req: Request, res: Response) => {
     });
     
     const promises = Object.entries(env).map(([key, value]) => 
-      client.post(`/v9/projects/${projectId}/env`, {
+      client.post(`/v9/projects/${safeId(projectId)}/env`, {
         key,
         value,
         type: 'encrypted',
@@ -412,7 +413,7 @@ app.post('/api/projects/:id/domain', async (req: Request, res: Response) => {
     
     logger.info('Adding domain to project', { projectId: id, domain });
     
-    await client.post(`/v9/projects/${id}/domains`, { name: domain });
+    await client.post(`/v9/projects/${safeId(id)}/domains`, { name: safeDomain(domain) });
     
     logger.info('Domain added successfully', { projectId: id, domain });
     
@@ -438,7 +439,7 @@ app.get('/api/deploy/:id/errors', async (req: Request, res: Response) => {
     const { id } = req.params;
     const client = getVercelClient();
     
-    const response = await client.get(`/v2/deployments/${id}/events`);
+    const response = await client.get(`/v2/deployments/${safeId(id)}/events`);
     
     const errors = response.data
       .filter((event: any) => 
