@@ -18,6 +18,7 @@
   "author": "CR AudioViz AI",
   "license": "MIT",
   "dependencies": {
+    "@craudioviz/platform-sdk": "git+https://github.com/CR-AudioViz-AI/platform-sdk.git",
     "@supabase/supabase-js": "^2.39.0",
     "axios": "^1.6.5",
     "cors": "^2.8.5",
